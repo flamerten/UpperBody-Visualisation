@@ -1,4 +1,4 @@
-from threading import Thread
+
 import time,sys
 
 #Opensim
@@ -8,11 +8,6 @@ from math import pi
 #SSH
 import paramiko
 import os
-
-#sEMG
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-
 
 ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
 
@@ -73,50 +68,4 @@ imuIK.set_results_directory(resultsDirectory)
 imuIK.set_time_range(0, startTime)
 imuIK.set_time_range(1, endTime)
 
-def OpenSimVisual():
-    # Run IK
-    imuIK.run(visualizeTracking)
-
-def visualiseSEMG():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
-    xs = []
-    ys = []
-
-    f = open(to_collect[3],"r")
-    lines = f.readlines()
-
-    sEMG_reading = []
-    time_stamp = []
-
-    for line in lines:
-        sEMG,t = map(float,line.split("\t"))
-        sEMG_reading.append(sEMG)
-        time_stamp.append(t)
-
-    time_interval = time_stamp[1]-time_stamp[0]
-
-    def animate(i, xs, ys):
-        # Add x and y to lists
-        xs.append(sEMG_reading[i])
-        ys.append(time_stamp[i])
-
-        # Limit x and y lists to 20 items
-        xs = xs[-20:]
-        ys = ys[-20:]
-
-        # Draw x and y lists
-        ax.clear()
-        ax.plot(xs, ys)
-
-        # Format plot
-        plt.xticks(rotation=45, ha='right')
-        plt.subplots_adjust(bottom=0.30)
-
-
-    # Set up plot to call animate() function periodically
-    ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=time_interval)
-    plt.show()
-
-Thread(target = OpenSimVisual).start() 
-Thread(target = visualiseSEMG).start()
+imuIK.run(visualizeTracking)
