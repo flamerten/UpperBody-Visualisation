@@ -1,8 +1,18 @@
+from threading import Thread
+import time,sys
+
+#Opensim
 import opensim as osim
 from math import pi
+
+#SSH
 import paramiko
 import os
-import time
+
+#sEMG
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
 
 ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
 
@@ -32,23 +42,17 @@ while True:
         #print(".",end = " ") #this doesnt work that well
     
     if file_exists:
-        for file in Collect_files:
-            sftp.get(ubuntu_dir+Collect_file)
-
-        sftp.get(model_file,os.getcwd()+"\\calibrated_Rajagopal_2015.osim")
-        sftp.get(sto_file,os.getcwd()+"\\tiny_file.sto")
-        sftp.get(target_file,os.getcwd()+"\\motion_info.txt")
-        sftp.get(sEMG_file,os.getcwd()+"\\sEMG_data.txt")
+        for file in to_collect:
+            sftp.get(ubuntu_dir+file, os.getcwd() + "\\" + file) #maintain the same naming
         sftp.close()
         break
 
 #recieve files
 startTime = 0.0
-f = open("motion_info.txt","r")
+f = open(to_collect[0],"r")
 errorHeading = float(f.readline())
 endTime = float(f.readline())
 f.close()
-
 
 modelFileName = 'calibrated_Rajagopal_2015.osim'                # The path to an input model
 orientationsFileName = 'tiny_file.sto'   # The path to orientation data for calibration 
@@ -66,8 +70,53 @@ imuIK.set_sensor_to_opensim_rotations(sensor_to_opensim_rotation)
 imuIK.set_results_directory(resultsDirectory)
 
 # Set time range in seconds
-imuIK.set_time_range(0, startTime); 
-imuIK.set_time_range(1, endTime);   
+imuIK.set_time_range(0, startTime)
+imuIK.set_time_range(1, endTime)
 
-# Run IK
-imuIK.run(visualizeTracking)
+def OpenSimVisual():
+    # Run IK
+    imuIK.run(visualizeTracking)
+
+def visualiseSEMG():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    xs = []
+    ys = []
+
+    f = open(to_collect[3],"r")
+    lines = f.readlines()
+
+    sEMG_reading = []
+    time_stamp = []
+
+    for line in lines:
+        sEMG,t = map(float,line.split("\t"))
+        sEMG_reading.append(sEMG)
+        time_stamp.append(t)
+
+    time_interval = time_stamp[1]-time_stamp[0]
+
+    def animate(i, xs, ys):
+        # Add x and y to lists
+        xs.append(sEMG_reading[i])
+        ys.append(time_stamp[i])
+
+        # Limit x and y lists to 20 items
+        xs = xs[-20:]
+        ys = ys[-20:]
+
+        # Draw x and y lists
+        ax.clear()
+        ax.plot(xs, ys)
+
+        # Format plot
+        plt.xticks(rotation=45, ha='right')
+        plt.subplots_adjust(bottom=0.30)
+
+
+    # Set up plot to call animate() function periodically
+    ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=time_interval)
+    plt.show()
+
+Thread(target = OpenSimVisual).start() 
+Thread(target = visualiseSEMG).start()
