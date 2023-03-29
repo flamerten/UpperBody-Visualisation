@@ -14,8 +14,8 @@ ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
 to_collect = [
     "motion_info.txt", #This is the one to check if data has been collected or not!
     "calibrated_Rajagopal_2015.osim",
-    "tiny_file.sto",
-    "sEMG_data.txt"
+    "tiny_file.sto"
+    #"sEMG_data.txt"
     ]
 
 target_file = ubuntu_dir + to_collect[0]
@@ -55,11 +55,24 @@ sensor_to_opensim_rotation = osim.Vec3(-pi/2, errorHeading, 0) # The rotation of
 visualizeTracking = True;  # Boolean to Visualize the tracking simulation
 resultsDirectory = 'IKResults'
 
+OriginalmodelFileName = "Rajagopal_2015.osim"
+InternalmodelFileName = 'internal_' + modelFileName
+
+#Calibrate_model
+imuPlacer = osim.IMUPlacer();
+imuPlacer.set_model_file(OriginalmodelFileName);
+imuPlacer.set_orientation_file_for_calibration(orientationsFileName);
+imuPlacer.set_sensor_to_opensim_rotations(sensor_to_opensim_rotation);
+imuPlacer.run(False);
+
+model = imuPlacer.getCalibratedModel();
+model.printToXML(InternalmodelFileName)
+
 # Instantiate an InverseKinematicsTool
 imuIK = osim.IMUInverseKinematicsTool()
  
 # Set tool properties
-imuIK.set_model_file(modelFileName)
+imuIK.set_model_file(InternalmodelFileName)
 imuIK.set_orientations_file(orientationsFileName)
 imuIK.set_sensor_to_opensim_rotations(sensor_to_opensim_rotation)
 imuIK.set_results_directory(resultsDirectory)
