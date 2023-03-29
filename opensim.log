@@ -401,3 +401,69 @@
 [2023-03-29 17:13:20.750] [info] Loading orientations as quaternions from 'tiny_file.sto'...
 [2023-03-29 17:13:21.957] [info] InverseKinematicsSolver found 6 model frames to track.
 [2023-03-29 17:13:37.390] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-29 17:43:59.086] [info] Loaded model Rajagopal_2015 from file Rajagopal_2015.osim
+[2023-03-29 17:43:59.189] [info] No heading correction is applied.
+[2023-03-29 17:43:59.190] [info] Processing pelvis_imu
+[2023-03-29 17:43:59.190] [info] Computed offset for pelvis_imu
+[2023-03-29 17:43:59.190] [info] Offset is 
+[-0.102916,-0.991553,-0.0789393]
+[0.984362,-0.112933,0.135194]
+[-0.142966,-0.0637912,0.98767]
+
+[2023-03-29 17:43:59.190] [info] Creating offset frame for pelvis_imu
+[2023-03-29 17:43:59.191] [info] Added offset frame for pelvis_imu.
+[2023-03-29 17:43:59.191] [info] pelvis_imu offset computed from pelvis_imu data from file.
+[2023-03-29 17:43:59.191] [info] Processing torso_imu
+[2023-03-29 17:43:59.191] [info] Computed offset for torso_imu
+[2023-03-29 17:43:59.191] [info] Offset is 
+[0.946366,-0.133817,0.294082]
+[0.119687,0.990641,0.0656194]
+[-0.30011,-0.0269023,0.953525]
+
+[2023-03-29 17:43:59.192] [info] Creating offset frame for torso_imu
+[2023-03-29 17:43:59.193] [info] Added offset frame for torso_imu.
+[2023-03-29 17:43:59.193] [info] torso_imu offset computed from torso_imu data from file.
+[2023-03-29 17:43:59.193] [info] Processing humerus_l_imu
+[2023-03-29 17:43:59.194] [info] Computed offset for humerus_l_imu
+[2023-03-29 17:43:59.195] [info] Offset is 
+[0.967457,0.137672,-0.212307]
+[-0.141398,0.98995,-0.0023941]
+[0.209844,0.032336,0.9772]
+
+[2023-03-29 17:43:59.195] [info] Creating offset frame for humerus_l_imu
+[2023-03-29 17:43:59.197] [info] Added offset frame for humerus_l_imu.
+[2023-03-29 17:43:59.197] [info] humerus_l_imu offset computed from humerus_l_imu data from file.
+[2023-03-29 17:43:59.197] [info] Processing ulna_l_imu
+[2023-03-29 17:43:59.198] [info] Computed offset for ulna_l_imu
+[2023-03-29 17:43:59.198] [info] Offset is 
+[0.9972,0.0611616,-0.0430269]
+[-0.0628992,0.997208,-0.04026]
+[0.0404444,0.0428536,0.998262]
+
+[2023-03-29 17:43:59.199] [info] Creating offset frame for ulna_l_imu
+[2023-03-29 17:43:59.201] [info] Added offset frame for ulna_l_imu.
+[2023-03-29 17:43:59.201] [info] ulna_l_imu offset computed from ulna_l_imu data from file.
+[2023-03-29 17:43:59.201] [info] Processing humerus_r_imu
+[2023-03-29 17:43:59.202] [info] Computed offset for humerus_r_imu
+[2023-03-29 17:43:59.205] [info] Offset is 
+[0.984751,-0.0906933,0.14846]
+[0.0678019,0.985962,0.152581]
+[-0.160214,-0.140188,0.977077]
+
+[2023-03-29 17:43:59.206] [info] Creating offset frame for humerus_r_imu
+[2023-03-29 17:43:59.207] [info] Added offset frame for humerus_r_imu.
+[2023-03-29 17:43:59.207] [info] humerus_r_imu offset computed from humerus_r_imu data from file.
+[2023-03-29 17:43:59.208] [info] Processing ulna_r_imu
+[2023-03-29 17:43:59.209] [info] Computed offset for ulna_r_imu
+[2023-03-29 17:43:59.209] [info] Offset is 
+[0.993611,-0.015094,0.111845]
+[-0.00027995,0.990683,0.136184]
+[-0.112859,-0.135345,0.98435]
+
+[2023-03-29 17:43:59.209] [info] Creating offset frame for ulna_r_imu
+[2023-03-29 17:43:59.211] [info] Added offset frame for ulna_r_imu.
+[2023-03-29 17:43:59.211] [info] ulna_r_imu offset computed from ulna_r_imu data from file.
+[2023-03-29 17:43:59.257] [info] Loaded model Rajagopal_2015 from file internal_calibrated_Rajagopal_2015.osim
+[2023-03-29 17:43:59.283] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-29 17:43:59.693] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-29 17:44:20.131] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
