@@ -1,0 +1,73 @@
+[2023-03-27 16:30:42.499] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 16:30:42.651] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 16:30:43.709] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 16:31:12.053] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-27 16:39:17.227] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 16:39:17.308] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 16:39:18.368] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 16:41:37.798] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 16:41:37.857] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 16:41:38.874] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 16:41:57.541] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-27 16:44:10.802] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 16:44:10.885] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 16:44:11.982] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 16:44:26.407] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-27 16:48:35.087] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 16:48:35.142] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 16:48:36.061] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 16:48:49.373] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-27 17:50:37.877] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 17:50:37.994] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 17:50:39.326] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 17:50:53.919] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-27 17:51:43.927] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 17:51:44.055] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 17:51:44.859] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 17:52:10.039] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-27 17:55:53.598] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 17:55:53.737] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 17:55:54.839] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 17:56:26.907] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-27 17:57:41.006] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 17:57:41.072] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 17:57:41.917] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 17:57:56.379] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-27 18:39:25.192] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 18:39:25.223] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 18:39:25.641] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 18:39:40.139] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-27 18:40:43.500] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 18:40:43.537] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 18:40:43.937] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 18:41:06.451] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-27 18:43:31.947] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 18:43:31.986] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 18:43:32.398] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 18:44:01.164] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-27 18:45:25.102] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-27 18:45:25.139] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-27 18:45:25.539] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-27 18:45:48.029] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-29 14:04:14.210] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-29 14:04:14.801] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-29 14:04:16.470] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-29 14:04:35.125] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-29 14:41:42.230] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-29 14:41:42.330] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-29 14:41:43.415] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-29 14:42:00.920] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-29 15:21:26.951] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-29 15:21:27.065] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-29 15:21:28.476] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-29 15:21:50.389] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
+[2023-03-29 16:10:44.237] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-29 16:10:44.373] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-29 16:10:45.869] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-29 16:12:20.058] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-29 16:12:20.189] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-29 16:12:21.556] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-29 16:13:22.859] [info] Loaded model Rajagopal_2015 from file calibrated_Rajagopal_2015.osim
+[2023-03-29 16:13:22.980] [info] Loading orientations as quaternions from 'tiny_file.sto'...
+[2023-03-29 16:13:24.139] [info] InverseKinematicsSolver found 6 model frames to track.
+[2023-03-29 16:13:54.646] [info] Wrote IK with IMU tracking results to: 'ik_tiny_file.mot'.
