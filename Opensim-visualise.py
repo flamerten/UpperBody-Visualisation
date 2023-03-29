@@ -9,14 +9,19 @@ from math import pi
 import paramiko
 import os
 
+use_sEMG = False
+
 ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
 
 to_collect = [
     "motion_info.txt", #This is the one to check if data has been collected or not!
     "calibrated_Rajagopal_2015.osim",
     "tiny_file.sto"
-    #"sEMG_data.txt"
+    "sEMG_data.txt"
     ]
+
+if use_sEMG == False:
+    to_collect = to_collect[:-1] #dont transfer that data 
 
 target_file = ubuntu_dir + to_collect[0]
 
@@ -63,7 +68,7 @@ imuPlacer = osim.IMUPlacer();
 imuPlacer.set_model_file(OriginalmodelFileName);
 imuPlacer.set_orientation_file_for_calibration(orientationsFileName);
 imuPlacer.set_sensor_to_opensim_rotations(sensor_to_opensim_rotation);
-imuPlacer.run(False);
+imuPlacer.run(False); #dont visualise placer
 
 model = imuPlacer.getCalibratedModel();
 model.printToXML(InternalmodelFileName)
