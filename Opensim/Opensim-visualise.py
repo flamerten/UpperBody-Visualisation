@@ -23,7 +23,7 @@ to_collect = [
 orientationsFileName = 'tiny_file.sto'   # The path to orientation data for calibration 
 visualizeTracking = True  # Boolean to Visualize the tracking simulation
 OriginalmodelFileName = "Locked_Rajagopal_2015.osim"
-Internal_modelFileName = 'internal_' + OriginalmodelFileName
+Internal_modelFileName = 'Calibrated_' + OriginalmodelFileName
 
 RPI_IP_Address = "192.168.1.111"
 RPI_Username = "ubuntu"
@@ -45,7 +45,7 @@ def setDirectory():
 def moveFile(filename,NewDir):
     currentDir = os.getcwd() + "\\" + filename
     tagetDir = os.getcwd() + "\\" + NewDir + "\\" + filename
-    
+
     os.replace(currentDir,tagetDir)
     print(tagetDir)
 
