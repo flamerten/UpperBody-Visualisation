@@ -13,11 +13,10 @@ import os
 use_sEMG = False
 
 ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
-
 to_collect = [
     "motion_info.txt", #This is the one to check if data has been collected or not!
     "calibrated_Rajagopal_2015.osim",
-    "tiny_file.sto"
+    "tiny_file.sto",
     "sEMG_data.txt"
     ]
 
@@ -48,6 +47,7 @@ def setDirectory():
 def moveFile(filename,NewDir):
     os.replace(os.getcwd() + "\\" + filename,
                os.getcwd() + "\\" + NewDir + "\\" + filename)
+    print(os.getcwd() + "\\" + NewDir + "\\" + filename)
 
 
 ssh_client = paramiko.SSHClient()
@@ -70,8 +70,11 @@ while True:
         #print(".",end = " ") #this doesnt work that well
     
     if file_exists:
+        print("\nFiles Recieved:")
         for file in to_collect:
             sftp.get(ubuntu_dir+file, os.getcwd() + "\\" + file) #maintain the same naming
+            print(os.getcwd() + "\\" + file)     
+        print("")
         sftp.close()
         break
 
@@ -104,6 +107,7 @@ imuIK.set_time_range(1, endTime)
 imuIK.run(visualizeTracking)
 
 Files_To_Move = to_collect + [Internal_modelFileName]
+print("Files moved to " + resultsDirectory)
 for file in Files_To_Move:
     moveFile(file,resultsDirectory)
 
