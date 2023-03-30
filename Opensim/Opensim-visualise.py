@@ -1,6 +1,6 @@
 
 import time,sys
-from datetime import date
+from datetime import datetime
 
 #Opensim
 import opensim as osim
@@ -15,7 +15,6 @@ use_sEMG = False
 ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
 to_collect = [
     "motion_info.txt", #This is the one to check if data has been collected or not!
-    "calibrated_Rajagopal_2015.osim",
     "tiny_file.sto",
     "sEMG_data.txt"
     ]
@@ -23,8 +22,7 @@ to_collect = [
 
 orientationsFileName = 'tiny_file.sto'   # The path to orientation data for calibration 
 visualizeTracking = True  # Boolean to Visualize the tracking simulation
-OriginalmodelFileName = "Rajagopal_2015.osim"
-RPI_modelFileName = 'calibrated_Rajagopal_2015.osim'                # The path to an input model
+OriginalmodelFileName = "Locked_Rajagopal_2015.osim"
 Internal_modelFileName = 'internal_' + OriginalmodelFileName
 
 RPI_IP_Address = "192.168.1.111"
@@ -40,14 +38,16 @@ def get_IK_params(collection):
     return startTime, endTime, errorHeading
 
 def setDirectory():
-    today = date.today()
-    dir = today.strftime("%d%m%Y-%H%M")
+    today = datetime.now()
+    dir = today.strftime("%d%m%y-%H%M")
     return dir
 
 def moveFile(filename,NewDir):
-    os.replace(os.getcwd() + "\\" + filename,
-               os.getcwd() + "\\" + NewDir + "\\" + filename)
-    print(os.getcwd() + "\\" + NewDir + "\\" + filename)
+    currentDir = os.getcwd() + "\\" + filename
+    tagetDir = os.getcwd() + "\\" + NewDir + "\\" + filename
+    
+    os.replace(currentDir,tagetDir)
+    print(tagetDir)
 
 
 ssh_client = paramiko.SSHClient()
@@ -81,7 +81,7 @@ while True:
 
 startTime, endTime, errorHeading = get_IK_params(to_collect)
 sensor_to_opensim_rotation = osim.Vec3(-pi/2, errorHeading, 0) # The rotation of IMU data to the OpenSim world frame
-resultsDirectory = setDirectory()
+resultsDirectory = "Results\\"+setDirectory()
 
 #Calibrate_model
 imuPlacer = osim.IMUPlacer()
@@ -107,7 +107,7 @@ imuIK.set_time_range(1, endTime)
 imuIK.run(visualizeTracking)
 
 Files_To_Move = to_collect + [Internal_modelFileName]
-print("Files moved to " + resultsDirectory)
+print("\nFiles moved to " + resultsDirectory)
 for file in Files_To_Move:
     moveFile(file,resultsDirectory)
 
