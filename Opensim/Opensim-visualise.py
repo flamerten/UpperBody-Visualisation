@@ -51,10 +51,6 @@ def moveFile(filename,NewDir):
     os.replace(currentDir,tagetDir)
     print(tagetDir)
 
-def processIMU(imu_data,tiny_file):
-
-
-
 
 ssh_client = paramiko.SSHClient()
 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
