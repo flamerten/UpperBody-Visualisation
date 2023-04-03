@@ -16,6 +16,7 @@ ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
 to_collect = [
     "motion_info.txt", #This is the one to check if data has been collected or not!
     "tiny_file.sto",
+    "raw_imu.npy",
     "sEMG_data.txt"
     ]
 
@@ -49,6 +50,10 @@ def moveFile(filename,NewDir):
 
     os.replace(currentDir,tagetDir)
     print(tagetDir)
+
+def processIMU(imu_data,tiny_file):
+
+
 
 
 ssh_client = paramiko.SSHClient()
