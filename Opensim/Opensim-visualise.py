@@ -40,7 +40,7 @@ def get_IK_params(collection):
 def setDirectory():
     today = datetime.now()
     #dir = today.strftime("%d%m%y-%H%M")
-    dir = today.strftime("%y%m%d-%H%M")
+    dir = today.strftime("%y-%m-%d_%H%M")
     return dir
 
 def moveFile(filename,NewDir):
