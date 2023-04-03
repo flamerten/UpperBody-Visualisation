@@ -12,7 +12,7 @@ import os
 
 #solving
 import numpy as np
-from ahrs.filters import Madgwick
+from ahrs.filters import Mahony
 
 use_sEMG = False
 
@@ -39,7 +39,8 @@ def get_IK_params(collection):
     f = open(collection[0],"r")
     startTime = 0.0
     errorHeading = float(f.readline())
-    endTime = float(f.readline())
+    #endTime = float(f.readline())
+    endTime = UpdateEndTime(neworientations)
     f.close()
     return startTime, endTime, errorHeading
 
@@ -56,11 +57,13 @@ def moveFile(filename,NewDir):
     os.replace(currentDir,tagetDir)
     print(tagetDir)
 
-def processIMU(imu_data, sto_filename):
-    madgwick = Madgwick()
-    rows = imu_data.shape[0]
+def filterIMU(imu_data, sto_filename):
     Q = np.tile([1., 0., 0., 0.], (rows, 6))
-    Q[0] = process_sto(sto_filename)
+    Q[0],IMU_rate = get_t0_IMUrate(sto_filename)
+
+    mahony = Mahony(frequency = IMU_rate)
+    rows = imu_data.shape[0]
+    
 
     for row in range(1,rows):
         for sn in range(6):
@@ -68,25 +71,25 @@ def processIMU(imu_data, sto_filename):
             accel_imu = imu_readings[:3]
             gyro_imu = imu_readings[3:]
 
-            Q[row,4*(sn):4*(sn+1)] = madgwick.updateIMU(
+            Q[row,4*(sn):4*(sn+1)] = mahony.updateIMU(
                 Q[row-1,4*(sn):4*(sn+1)],
                 gyr=gyro_imu,
                 acc=accel_imu)
 
     return Q
 
-def process_sto(sto_filename):
+def get_t0_IMUrate(sto_filename):
     f = open(sto_filename,"r")
     lines = f.readlines()
-    data = lines[6].split("\t") #take the t = 0 timestamp
+    quat_t0 = lines[6].split("\t") #take the t = 0 timestamp
+
+    IMU_rate = int(lines[0].split("=")[1])
     
-    quats = data[1:]
-    #print(quats)
     res = []
-    for item in quats:
+    for item in quat_t0[1:]: #dont consider the t0 timestamp
         res = res + list(map(float,item.split(",")))
     
-    return res
+    return res,IMU_rate
 
 def create_sto(Q,sto_filename,new_sto_filename):
     f = open(sto_filename,"r")
@@ -150,12 +153,10 @@ while True:
         break
 
 imu_data = np.load("raw_imu.npy")
-Q = processIMU(imu_data,orientationsFileName)
+Q = filterIMU(imu_data,orientationsFileName)
 create_sto(Q,orientationsFileName,neworientations)
 
 startTime, endTime, errorHeading = get_IK_params(to_collect)
-
-endTime = UpdateEndTime(neworientations)
 
 sensor_to_opensim_rotation = osim.Vec3(-pi/2, errorHeading, 0) # The rotation of IMU data to the OpenSim world frame
 resultsDirectory = "Results\\"+setDirectory()
