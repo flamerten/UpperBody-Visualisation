@@ -26,7 +26,7 @@ to_collect = [
 
 
 orientationsFileName = 'tiny_file.sto'   # The path to orientation data for calibration 
-neworientations = 'new_tine_file.sto'
+neworientations = 'new_tiny_file.sto'
 visualizeTracking = True  # Boolean to Visualize the tracking simulation
 OriginalmodelFileName = "Locked_Rajagopal_2015.osim"
 Internal_modelFileName = 'Calibrated_' + OriginalmodelFileName
@@ -64,7 +64,7 @@ def processIMU(imu_data, sto_filename):
 
     for row in range(1,rows):
         for sn in range(6):
-            imu_readings = imu[row,sn*6:sn*6 + 6]
+            imu_readings = imu_data[row,sn*6:sn*6 + 6]
             accel_imu = imu_readings[:3]
             gyro_imu = imu_readings[3:]
 
@@ -78,7 +78,7 @@ def processIMU(imu_data, sto_filename):
 def process_sto(sto_filename):
     f = open(sto_filename,"r")
     lines = f.readlines()
-    data = lines[-1].split("\t")
+    data = lines[6].split("\t") #take the t = 0 timestamp
     
     quats = data[1:]
     #print(quats)
@@ -114,6 +114,13 @@ def create_sto(Q,sto_filename,new_sto_filename):
     
     new_file.close()
 
+def UpdateEndTime(new_sto_filename):
+    f = open(new_sto_filename,"r")
+    lines = f.readlines()
+    end_time = lines[-1].split("\t")[0]
+    return float(end_time)
+
+
 ssh_client = paramiko.SSHClient()
 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 ssh_client.connect(RPI_IP_Address, port = 22, username = RPI_Username,password=RPI_Password)
@@ -144,9 +151,12 @@ while True:
 
 imu_data = np.load("raw_imu.npy")
 Q = processIMU(imu_data,orientationsFileName)
-create_sto(Q,neworientations)
+create_sto(Q,orientationsFileName,neworientations)
 
 startTime, endTime, errorHeading = get_IK_params(to_collect)
+
+endTime = UpdateEndTime(neworientations)
+
 sensor_to_opensim_rotation = osim.Vec3(-pi/2, errorHeading, 0) # The rotation of IMU data to the OpenSim world frame
 resultsDirectory = "Results\\"+setDirectory()
 
@@ -177,4 +187,6 @@ Files_To_Move = to_collect + [Internal_modelFileName]
 print("\nFiles moved to " + resultsDirectory)
 for file in Files_To_Move:
     moveFile(file,resultsDirectory)
+
+moveFile(neworientations,resultsDirectory)
 
