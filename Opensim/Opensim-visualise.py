@@ -10,7 +10,11 @@ from math import pi
 import paramiko
 import os
 
-use_sEMG = True
+#solving
+import numpy as np
+from ahrs.filters import Madgwick
+
+use_sEMG = False
 
 ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
 to_collect = [
@@ -22,6 +26,7 @@ to_collect = [
 
 
 orientationsFileName = 'tiny_file.sto'   # The path to orientation data for calibration 
+neworientations = 'new_tine_file.sto'
 visualizeTracking = True  # Boolean to Visualize the tracking simulation
 OriginalmodelFileName = "Locked_Rajagopal_2015.osim"
 Internal_modelFileName = 'Calibrated_' + OriginalmodelFileName
@@ -51,10 +56,63 @@ def moveFile(filename,NewDir):
     os.replace(currentDir,tagetDir)
     print(tagetDir)
 
-def processIMU(imu_data,tiny_file):
+def processIMU(imu_data, sto_filename):
+    madgwick = Madgwick()
+    rows = imu_data.shape[0]
+    Q = np.tile([1., 0., 0., 0.], (rows, 6))
+    Q[0] = process_sto(sto_filename)
 
+    for row in range(1,rows):
+        for sn in range(6):
+            imu_readings = imu[row,sn*6:sn*6 + 6]
+            accel_imu = imu_readings[:3]
+            gyro_imu = imu_readings[3:]
 
+            Q[row,4*(sn):4*(sn+1)] = madgwick.updateIMU(
+                Q[row-1,4*(sn):4*(sn+1)],
+                gyr=gyro_imu,
+                acc=accel_imu)
 
+    return Q
+
+def process_sto(sto_filename):
+    f = open(sto_filename,"r")
+    lines = f.readlines()
+    data = lines[-1].split("\t")
+    
+    quats = data[1:]
+    #print(quats)
+    res = []
+    for item in quats:
+        res = res + list(map(float,item.split(",")))
+    
+    return res
+
+def create_sto(Q,sto_filename,new_sto_filename):
+    f = open(sto_filename,"r")
+    lines = f.readlines()
+
+    new_file = open(new_sto_filename,"w")
+    for i in range(6):
+        new_file.write(lines[i])
+
+    data_rate = float(lines[0].split("=")[-1])
+    dt = 1/data_rate
+
+    for i in range(Q.shape[0]):
+        time_stamp = i*dt
+        new_file.write("{}".format(round(time_stamp,2)))
+
+        for sensor in range(6):
+            start_index = sensor * 4
+            new_file.write("\t{},{},{},{}".format(
+                Q[i,start_index],
+                Q[i,start_index+1],
+                Q[i,start_index+2],
+                Q[i,start_index+3]))
+        new_file.write("\n")
+    
+    new_file.close()
 
 ssh_client = paramiko.SSHClient()
 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -84,6 +142,9 @@ while True:
         sftp.close()
         break
 
+imu_data = np.load("raw_imu.npy")
+Q = processIMU(imu_data,orientationsFileName)
+create_sto(Q,neworientations)
 
 startTime, endTime, errorHeading = get_IK_params(to_collect)
 sensor_to_opensim_rotation = osim.Vec3(-pi/2, errorHeading, 0) # The rotation of IMU data to the OpenSim world frame
@@ -92,7 +153,7 @@ resultsDirectory = "Results\\"+setDirectory()
 #Calibrate_model
 imuPlacer = osim.IMUPlacer()
 imuPlacer.set_model_file(OriginalmodelFileName)
-imuPlacer.set_orientation_file_for_calibration(orientationsFileName)
+imuPlacer.set_orientation_file_for_calibration(neworientations)
 imuPlacer.set_sensor_to_opensim_rotations(sensor_to_opensim_rotation)
 imuPlacer.run(False); #dont visualise placer
 
@@ -102,7 +163,7 @@ model.printToXML(Internal_modelFileName) #Create the calibrated model based on t
 # Instantiate an InverseKinematicsTool
 imuIK = osim.IMUInverseKinematicsTool()
 imuIK.set_model_file(Internal_modelFileName)
-imuIK.set_orientations_file(orientationsFileName)
+imuIK.set_orientations_file(neworientations)
 imuIK.set_sensor_to_opensim_rotations(sensor_to_opensim_rotation)
 imuIK.set_results_directory(resultsDirectory)
 
