@@ -10,7 +10,7 @@ from math import pi
 import paramiko
 import os
 
-use_sEMG = False
+use_sEMG = True
 
 ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
 to_collect = [
@@ -39,7 +39,8 @@ def get_IK_params(collection):
 
 def setDirectory():
     today = datetime.now()
-    dir = today.strftime("%d%m%y-%H%M")
+    #dir = today.strftime("%d%m%y-%H%M")
+    dir = today.strftime("%y%m%d-%H%M")
     return dir
 
 def moveFile(filename,NewDir):
