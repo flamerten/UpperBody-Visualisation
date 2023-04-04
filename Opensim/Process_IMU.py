@@ -61,7 +61,25 @@ def quat_to_sto(Q,sto_filename,new_sto_filename):
     
     new_file.close()
 
+def rotate_imus(rot_mat_filename,imu_data):
+    rot_mats = np.load(rot_mat_filename)
+
+    for i in range(6):
+        s_off = i*6
+        accel = np.matmul(imu_data[:,s_off:s_off+3],rot_mats[i,:,:])
+        gyro = np.matmul(imu_data[:,s_off+3:s_off+6],rot_mats[i,:,:])
+
+        imu_data[:,s_off:s_off+3] = accel
+        imu_data[:,s_off+3:s_off+6] = gyro
+
+    return imu_data
+
+
 def generate_Quat_File(raw_imu_filename,t0_sto_file, targetQuatFile):
+    #as long as the position of the sensors are the same, the rot mat should not change
+    rot_mat_filename = r"C:\Users\chris\Documents\Visualisation\Opensim\rot_mats.npy"
+
     imu_data = np.load(raw_imu_filename)
+    imu_data = rotate_imus(rot_mat_filename,imu_data)
     Q = filterIMU(imu_data,t0_sto_file)
     quat_to_sto(Q,t0_sto_file,targetQuatFile)   
