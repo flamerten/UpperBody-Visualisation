@@ -25,8 +25,8 @@ to_collect = [
     ]
 
 
-orientationsFileName = 'tiny_file.sto'   # The path to orientation data for calibration 
-neworientations = 'new_tiny_file.sto'
+orientations_FileName = 'tiny_file.sto' #from rpi
+generated_QuatFile = 'new_tiny_file.sto' #from computer 
 visualizeTracking = True  # Boolean to Visualize the tracking simulation
 OriginalmodelFileName = "Locked_Rajagopal_2015.osim"
 Internal_modelFileName = 'Calibrated_' + OriginalmodelFileName
@@ -90,7 +90,8 @@ def get_t0_IMUrate(sto_filename):
     
     return res,IMU_rate
 
-def create_sto(Q,sto_filename,new_sto_filename):
+def Q_to_sto(Q,sto_filename,new_sto_filename):
+    #Copy format of the tiny_file.sto
     f = open(sto_filename,"r")
     lines = f.readlines()
 
@@ -152,18 +153,17 @@ while True:
         break
 
 imu_data = np.load("raw_imu.npy")
-Q = filterIMU(imu_data,orientationsFileName)
-create_sto(Q,orientationsFileName,neworientations)
+Q = filterIMU(imu_data,generated_QuatFile)
+Q_to_sto(Q,orientations_FileName,generated_QuatFile)
 
 startTime, endTime, errorHeading = get_IK_params(to_collect)
-
 sensor_to_opensim_rotation = osim.Vec3(-pi/2, errorHeading, 0) # The rotation of IMU data to the OpenSim world frame
 resultsDirectory = "Results\\"+setDirectory()
 
 #Calibrate_model
 imuPlacer = osim.IMUPlacer()
 imuPlacer.set_model_file(OriginalmodelFileName)
-imuPlacer.set_orientation_file_for_calibration(neworientations)
+imuPlacer.set_orientation_file_for_calibration(generated_QuatFile)
 imuPlacer.set_sensor_to_opensim_rotations(sensor_to_opensim_rotation)
 imuPlacer.run(False); #dont visualise placer
 
@@ -173,9 +173,9 @@ model.printToXML(Internal_modelFileName) #Create the calibrated model based on t
 # Instantiate an InverseKinematicsTool
 imuIK = osim.IMUInverseKinematicsTool()
 imuIK.set_model_file(Internal_modelFileName)
-imuIK.set_orientations_file(neworientations)
+imuIK.set_orientations_file(generated_QuatFile)
 imuIK.set_sensor_to_opensim_rotations(sensor_to_opensim_rotation)
-imuIK.set_results_directory(resultsDirectory)
+imuIK.set_results_directory(resultsDirectory) #the IK file is already saved in the results dir, no need to move it
 
 # Set time range in seconds
 imuIK.set_time_range(0, startTime)
@@ -183,10 +183,11 @@ imuIK.set_time_range(1, endTime)
 
 imuIK.run(visualizeTracking)
 
+#Move all files that were used to the results dir, and also the IK solved file
 Files_To_Move = to_collect + [Internal_modelFileName]
 print("\nFiles moved to " + resultsDirectory)
 for file in Files_To_Move:
     moveFile(file,resultsDirectory)
 
-moveFile(neworientations,resultsDirectory)
+moveFile(generated_QuatFile,resultsDirectory)
 
