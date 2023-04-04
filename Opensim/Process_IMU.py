@@ -3,7 +3,7 @@ import numpy as np
 from ahrs.filters import Mahony
 
 def filterIMU(imu_data, sto_filename):
-    rows = imu_data.shape[0]
+    rows = imu_data.shape[0] + 1 #include the first quat
     Q = np.tile([1., 0., 0., 0.], (rows, 6))
     Q[0],IMU_rate = get_t0_IMUrate(sto_filename)
 
@@ -25,17 +25,16 @@ def filterIMU(imu_data, sto_filename):
 def get_t0_IMUrate(sto_filename):
     f = open(sto_filename,"r")
     lines = f.readlines()
-    quat_t0 = lines[6].split("\t") #take the t = 0 timestamp
-
     IMU_rate = int(lines[0].split("=")[1])
-    
-    res = []
-    for item in quat_t0[1:]: #dont consider the t0 timestamp
-        res = res + list(map(float,item.split(",")))
-    
-    return res,IMU_rate
 
-def Qto_sto(Q,sto_filename,new_sto_filename):
+    t0_data = lines[6].split("\t") #take the t = 0 timestamp
+    t0_quats = []
+    for item in t0_data[1:]: #ignore timestamp
+        t0_quats = t0_quats + list(map(float,item.split(",")))
+    
+    return t0_quats,IMU_rate
+
+def quat_to_sto(Q,sto_filename,new_sto_filename):
     #Copy format of the tiny_file.sto
     f = open(sto_filename,"r")
     lines = f.readlines()
@@ -47,8 +46,8 @@ def Qto_sto(Q,sto_filename,new_sto_filename):
     data_rate = float(lines[0].split("=")[-1])
     dt = 1/data_rate
 
-    for i in range(Q.shape[0]):
-        time_stamp = i*dt
+    for i in range(1,Q.shape[0]): #do not write the first quat, part of calibration
+        time_stamp = (i-1)*dt
         new_file.write("{}".format(round(time_stamp,2)))
 
         for sensor in range(6):
@@ -62,7 +61,7 @@ def Qto_sto(Q,sto_filename,new_sto_filename):
     
     new_file.close()
 
-def Generate_Quat_File(raw_imu_filename,t0_sto_file, targetQuatFile):
+def generate_Quat_File(raw_imu_filename,t0_sto_file, targetQuatFile):
     imu_data = np.load(raw_imu_filename)
     Q = filterIMU(imu_data,t0_sto_file)
-    Qto_sto(Q,t0_sto_file,targetQuatFile)   
+    quat_to_sto(Q,t0_sto_file,targetQuatFile)   

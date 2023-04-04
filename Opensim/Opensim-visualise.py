@@ -1,4 +1,4 @@
-
+import Process_IMU as P
 import time,sys
 from datetime import datetime
 
@@ -10,27 +10,26 @@ from math import pi
 import paramiko
 import os
 
-#solving
-import numpy as np
-from ahrs.filters import Mahony
-
-import Raw as R
-
 use_sEMG = False
 
-ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
+Ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
 
 Target_FileName = "motion_info.txt"
 Rpi_quat_FileName = 'tiny_file.sto' #from rpi
-Generated_quat_FileName = 'quat_file.sto' #from computer 
+#file will be fully filled if online, will use this to compare to the 
+#com generated one
+
+Rpi_t0quat_FileName = "timestamp_0.sto"
+Generated_quat_FileName = 'quat_file.sto' #to generate using com computer 
 Original_model_FileName = "Locked_Rajagopal_2015.osim"
 Calibrated_model_FileName = 'Calibrated_' + Original_model_FileName
 Raw_IMU_FileName = "raw_imu.npy"
-Semg_FileName = "sEMG_data.txt"
+Semg_FileName = "semg_data.npy"
 
 to_collect = [
     Target_FileName,
     Rpi_quat_FileName,
+    Rpi_t0quat_FileName,
     Raw_IMU_FileName,
     Semg_FileName
 ]
@@ -68,29 +67,30 @@ ssh_client.connect(RPI_IP_Address, port = 22, username = RPI_Username,password=R
 
 sftp=ssh_client.open_sftp()
 file_exists = False
-target_file = ubuntu_dir + to_collect[0] #check to see if file exists before collecting all the data
+target_file = Ubuntu_dir + Target_FileName #check to see if file exists before collecting all the data
+
 if use_sEMG == False:
     to_collect.drop(Semg_FileName)
 
 while True:
     try:
-        sftp.chdir(ubuntu_dir)
+        sftp.chdir(Ubuntu_dir)
         sftp.stat(target_file) #check and see if target file exists
         file_exists = True
     except:
-        time.sleep(1)
+        time.sleep(0.5)
         #print(".",end = " ") #this doesnt work that well
     
     if file_exists:
         print("\nFiles Recieved:")
         for file in to_collect:
-            sftp.get(ubuntu_dir+file, os.getcwd() + "\\" + file) #maintain the same naming
+            sftp.get(Ubuntu_dir+file, os.getcwd() + "\\" + file) #maintain the same naming
             print(os.getcwd() + "\\" + file)     
         print("")
         sftp.close()
         break
 
-R.Generate_Quat_File(Raw_IMU_FileName,Rpi_quat_FileName,Generated_quat_FileName)
+P.generate_Quat_File(Raw_IMU_FileName,Rpi_t0quat_FileName,Generated_quat_FileName)
 
 startTime, endTime, errorHeading = get_IK_params(to_collect)
 sensor_to_opensim_rotation = osim.Vec3(-pi/2, errorHeading, 0) # The rotation of IMU data to the OpenSim world frame
@@ -98,7 +98,7 @@ resultsDirectory = "Results\\"+setDirectory()
 
 
 #ONE OF THEM
-quat_file = Rpi_quat_FileName #RPI filtering
+#quat_file = Rpi_quat_FileName #RPI filtering
 quat_file = Generated_quat_FileName #Com filtering
 
 #Calibrate_model
