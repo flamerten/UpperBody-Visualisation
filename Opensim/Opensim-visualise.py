@@ -58,13 +58,12 @@ def moveFile(filename,NewDir):
     print(tagetDir)
 
 def filterIMU(imu_data, sto_filename):
+    rows = imu_data.shape[0]
     Q = np.tile([1., 0., 0., 0.], (rows, 6))
     Q[0],IMU_rate = get_t0_IMUrate(sto_filename)
 
     mahony = Mahony(frequency = IMU_rate)
-    rows = imu_data.shape[0]
     
-
     for row in range(1,rows):
         for sn in range(6):
             imu_readings = imu_data[row,sn*6:sn*6 + 6]
