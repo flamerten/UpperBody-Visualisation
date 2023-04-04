@@ -14,33 +14,38 @@ import os
 import numpy as np
 from ahrs.filters import Mahony
 
+import Raw as R
+
 use_sEMG = False
 
 ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
+
+Target_FileName = "motion_info.txt"
+Rpi_quat_FileName = 'tiny_file.sto' #from rpi
+Generated_quat_FileName = 'quat_file.sto' #from computer 
+Original_model_FileName = "Locked_Rajagopal_2015.osim"
+Calibrated_model_FileName = 'Calibrated_' + Original_model_FileName
+Raw_IMU_FileName = "raw_imu.npy"
+Semg_FileName = "sEMG_data.txt"
+
 to_collect = [
-    "motion_info.txt", #This is the one to check if data has been collected or not!
-    "tiny_file.sto",
-    "raw_imu.npy",
-    "sEMG_data.txt"
-    ]
-
-
-orientations_FileName = 'tiny_file.sto' #from rpi
-generated_QuatFile = 'new_tiny_file.sto' #from computer 
-visualizeTracking = True  # Boolean to Visualize the tracking simulation
-OriginalmodelFileName = "Locked_Rajagopal_2015.osim"
-Internal_modelFileName = 'Calibrated_' + OriginalmodelFileName
+    Target_FileName,
+    Rpi_quat_FileName,
+    Raw_IMU_FileName,
+    Semg_FileName
+]
 
 RPI_IP_Address = "192.168.1.111"
 RPI_Username = "ubuntu"
 RPI_Password = "rosaparks"
 
-def get_IK_params(collection):
-    f = open(collection[0],"r")
+visualize = True  # Boolean to Visualize the tracking simulation
+
+def get_IK_params():
+    f = open(Target_FileName,"r")
     startTime = 0.0
     errorHeading = float(f.readline())
-    #endTime = float(f.readline())
-    endTime = UpdateEndTime(neworientations)
+    endTime = float(f.readline())
     f.close()
     return startTime, endTime, errorHeading
 
@@ -57,73 +62,6 @@ def moveFile(filename,NewDir):
     os.replace(currentDir,tagetDir)
     print(tagetDir)
 
-def filterIMU(imu_data, sto_filename):
-    rows = imu_data.shape[0]
-    Q = np.tile([1., 0., 0., 0.], (rows, 6))
-    Q[0],IMU_rate = get_t0_IMUrate(sto_filename)
-
-    mahony = Mahony(frequency = IMU_rate)
-    
-    for row in range(1,rows):
-        for sn in range(6):
-            imu_readings = imu_data[row,sn*6:sn*6 + 6]
-            accel_imu = imu_readings[:3]
-            gyro_imu = imu_readings[3:]
-
-            Q[row,4*(sn):4*(sn+1)] = mahony.updateIMU(
-                Q[row-1,4*(sn):4*(sn+1)],
-                gyr=gyro_imu,
-                acc=accel_imu)
-
-    return Q
-
-def get_t0_IMUrate(sto_filename):
-    f = open(sto_filename,"r")
-    lines = f.readlines()
-    quat_t0 = lines[6].split("\t") #take the t = 0 timestamp
-
-    IMU_rate = int(lines[0].split("=")[1])
-    
-    res = []
-    for item in quat_t0[1:]: #dont consider the t0 timestamp
-        res = res + list(map(float,item.split(",")))
-    
-    return res,IMU_rate
-
-def Q_to_sto(Q,sto_filename,new_sto_filename):
-    #Copy format of the tiny_file.sto
-    f = open(sto_filename,"r")
-    lines = f.readlines()
-
-    new_file = open(new_sto_filename,"w")
-    for i in range(6):
-        new_file.write(lines[i])
-
-    data_rate = float(lines[0].split("=")[-1])
-    dt = 1/data_rate
-
-    for i in range(Q.shape[0]):
-        time_stamp = i*dt
-        new_file.write("{}".format(round(time_stamp,2)))
-
-        for sensor in range(6):
-            start_index = sensor * 4
-            new_file.write("\t{},{},{},{}".format(
-                Q[i,start_index],
-                Q[i,start_index+1],
-                Q[i,start_index+2],
-                Q[i,start_index+3]))
-        new_file.write("\n")
-    
-    new_file.close()
-
-def UpdateEndTime(new_sto_filename):
-    f = open(new_sto_filename,"r")
-    lines = f.readlines()
-    end_time = lines[-1].split("\t")[0]
-    return float(end_time)
-
-
 ssh_client = paramiko.SSHClient()
 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 ssh_client.connect(RPI_IP_Address, port = 22, username = RPI_Username,password=RPI_Password)
@@ -132,7 +70,7 @@ sftp=ssh_client.open_sftp()
 file_exists = False
 target_file = ubuntu_dir + to_collect[0] #check to see if file exists before collecting all the data
 if use_sEMG == False:
-    to_collect = to_collect[:-1] #dont transfer semg data if not in use
+    to_collect.drop(Semg_FileName)
 
 while True:
     try:
@@ -152,28 +90,31 @@ while True:
         sftp.close()
         break
 
-imu_data = np.load("raw_imu.npy")
-Q = filterIMU(imu_data,generated_QuatFile)
-Q_to_sto(Q,orientations_FileName,generated_QuatFile)
+R.Generate_Quat_File(Raw_IMU_FileName,Rpi_quat_FileName,Generated_quat_FileName)
 
 startTime, endTime, errorHeading = get_IK_params(to_collect)
 sensor_to_opensim_rotation = osim.Vec3(-pi/2, errorHeading, 0) # The rotation of IMU data to the OpenSim world frame
 resultsDirectory = "Results\\"+setDirectory()
 
+
+#ONE OF THEM
+quat_file = Rpi_quat_FileName #RPI filtering
+quat_file = Generated_quat_FileName #Com filtering
+
 #Calibrate_model
 imuPlacer = osim.IMUPlacer()
-imuPlacer.set_model_file(OriginalmodelFileName)
-imuPlacer.set_orientation_file_for_calibration(generated_QuatFile)
+imuPlacer.set_model_file(Original_model_FileName)
+imuPlacer.set_orientation_file_for_calibration(quat_file)
 imuPlacer.set_sensor_to_opensim_rotations(sensor_to_opensim_rotation)
 imuPlacer.run(False); #dont visualise placer
 
 model = imuPlacer.getCalibratedModel()
-model.printToXML(Internal_modelFileName) #Create the calibrated model based on t0 time stamp
+model.printToXML(Calibrated_model_FileName) #Create the calibrated model based on t0 time stamp
 
 # Instantiate an InverseKinematicsTool
 imuIK = osim.IMUInverseKinematicsTool()
-imuIK.set_model_file(Internal_modelFileName)
-imuIK.set_orientations_file(generated_QuatFile)
+imuIK.set_model_file(Calibrated_model_FileName)
+imuIK.set_orientations_file(quat_file)
 imuIK.set_sensor_to_opensim_rotations(sensor_to_opensim_rotation)
 imuIK.set_results_directory(resultsDirectory) #the IK file is already saved in the results dir, no need to move it
 
@@ -181,13 +122,13 @@ imuIK.set_results_directory(resultsDirectory) #the IK file is already saved in t
 imuIK.set_time_range(0, startTime)
 imuIK.set_time_range(1, endTime)
 
-imuIK.run(visualizeTracking)
+imuIK.run(visualize)
 
 #Move all files that were used to the results dir, and also the IK solved file
-Files_To_Move = to_collect + [Internal_modelFileName]
+Files_To_Move = to_collect + [Calibrated_model_FileName] #move calibrated model
 print("\nFiles moved to " + resultsDirectory)
 for file in Files_To_Move:
     moveFile(file,resultsDirectory)
 
-moveFile(generated_QuatFile,resultsDirectory)
+moveFile(Generated_quat_FileName,resultsDirectory)
 
