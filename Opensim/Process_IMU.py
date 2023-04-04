@@ -11,7 +11,7 @@ def filterIMU(imu_data, sto_filename):
     
     for row in range(1,rows):
         for sn in range(6):
-            imu_readings = imu_data[row,sn*6:sn*6 + 6]
+            imu_readings = imu_data[row-1,sn*6:sn*6 + 6] #use row - 1 to take the first raw imu reading
             accel_imu = imu_readings[:3]
             gyro_imu = imu_readings[3:]
 
