@@ -11,6 +11,7 @@ import paramiko
 import os
 
 use_sEMG = False
+collect_Files = True #option to rerun on data that has been collected
 
 Ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
 
@@ -19,8 +20,8 @@ Rpi_quat_FileName = 'tiny_file.sto' #from rpi
 #file will be fully filled if online, will use this to compare to the 
 #com generated one
 
-Rpi_t0quat_FileName = "timestamp_0.sto"
-Generated_quat_FileName = 'quat_file.sto' #to generate using com computer 
+Rpi_t0quat_FileName = "timestamp_0.sto" #only has t0 inside
+Generated_quat_FileName = 'generated_quat_file.sto' #to generate using com computer 
 Original_model_FileName = "Locked_Rajagopal_2015.osim"
 Calibrated_model_FileName = 'Calibrated_' + Original_model_FileName
 Raw_IMU_FileName = "raw_imu.npy"
@@ -28,7 +29,7 @@ Semg_FileName = "semg_data.npy"
 
 to_collect = [
     Target_FileName,
-    Rpi_quat_FileName,
+    Rpi_quat_FileName, #merely for checking
     Rpi_t0quat_FileName,
     Raw_IMU_FileName,
     Semg_FileName
@@ -40,7 +41,7 @@ RPI_Password = "rosaparks"
 
 visualize = True  # Boolean to Visualize the tracking simulation
 
-def get_IK_params():
+def get_IK_params(Target_FileName):
     f = open(Target_FileName,"r")
     startTime = 0.0
     errorHeading = float(f.readline())
@@ -61,38 +62,39 @@ def moveFile(filename,NewDir):
     os.replace(currentDir,tagetDir)
     print(tagetDir)
 
-ssh_client = paramiko.SSHClient()
-ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh_client.connect(RPI_IP_Address, port = 22, username = RPI_Username,password=RPI_Password)
+if collect_Files:
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh_client.connect(RPI_IP_Address, port = 22, username = RPI_Username,password=RPI_Password)
 
-sftp=ssh_client.open_sftp()
-file_exists = False
-target_file = Ubuntu_dir + Target_FileName #check to see if file exists before collecting all the data
+    sftp=ssh_client.open_sftp()
+    file_exists = False
+    target_file = Ubuntu_dir + Target_FileName #check to see if file exists before collecting all the data
 
-if use_sEMG == False:
-    to_collect.drop(Semg_FileName)
+    if use_sEMG == False:
+        to_collect.drop(Semg_FileName)
 
-while True:
-    try:
-        sftp.chdir(Ubuntu_dir)
-        sftp.stat(target_file) #check and see if target file exists
-        file_exists = True
-    except:
-        time.sleep(0.5)
-        #print(".",end = " ") #this doesnt work that well
-    
-    if file_exists:
-        print("\nFiles Recieved:")
-        for file in to_collect:
-            sftp.get(Ubuntu_dir+file, os.getcwd() + "\\" + file) #maintain the same naming
-            print(os.getcwd() + "\\" + file)     
-        print("")
-        sftp.close()
-        break
+    while True:
+        try:
+            sftp.chdir(Ubuntu_dir)
+            sftp.stat(target_file) #check and see if target file exists
+            file_exists = True
+        except:
+            time.sleep(0.5)
+            #print(".",end = " ") #this doesnt work that well
+        
+        if file_exists:
+            print("\nFiles Recieved:")
+            for file in to_collect:
+                sftp.get(Ubuntu_dir+file, os.getcwd() + "\\" + file) #maintain the same naming
+                print(os.getcwd() + "\\" + file)     
+            print("")
+            sftp.close()
+            break
 
 P.generate_Quat_File(Raw_IMU_FileName,Rpi_t0quat_FileName,Generated_quat_FileName)
 
-startTime, endTime, errorHeading = get_IK_params(to_collect)
+startTime, endTime, errorHeading = get_IK_params(Target_FileName)
 sensor_to_opensim_rotation = osim.Vec3(-pi/2, errorHeading, 0) # The rotation of IMU data to the OpenSim world frame
 resultsDirectory = "Results\\"+setDirectory()
 
@@ -128,7 +130,9 @@ imuIK.run(visualize)
 Files_To_Move = to_collect + [Calibrated_model_FileName] #move calibrated model
 print("\nFiles moved to " + resultsDirectory)
 for file in Files_To_Move:
-    moveFile(file,resultsDirectory)
-
+    try:
+        moveFile(file,resultsDirectory)
+    except:
+        print("Unable to move File",file)
 moveFile(Generated_quat_FileName,resultsDirectory)
 
