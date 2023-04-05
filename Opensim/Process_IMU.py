@@ -3,7 +3,7 @@ import numpy as np
 from ahrs.filters import Mahony
 
 def filterIMU(imu_data, sto_filename):
-    rows = imu_data.shape[0] + 1 #include the first quat
+    rows = imu_data.shape[0]
     Q = np.tile([1., 0., 0., 0.], (rows, 6))
     Q[0],IMU_rate = get_t0_IMUrate(sto_filename)
 
@@ -11,7 +11,7 @@ def filterIMU(imu_data, sto_filename):
     
     for row in range(1,rows):
         for sn in range(6):
-            imu_readings = imu_data[row-1,sn*6:sn*6 + 6] #use row - 1 to take the first raw imu reading
+            imu_readings = imu_data[row,sn*6:sn*6 + 6] #use row - 1 to take the first raw imu reading
             accel_imu = imu_readings[:3]
             gyro_imu = imu_readings[3:]
 
@@ -40,14 +40,14 @@ def quat_to_sto(Q,sto_filename,new_sto_filename):
     lines = f.readlines()
 
     new_file = open(new_sto_filename,"w")
-    for i in range(6):
-        new_file.write(lines[i])
+    for i in range(7):
+        new_file.write(lines[i]) #include the first time stamp
 
     data_rate = float(lines[0].split("=")[-1])
     dt = 1/data_rate
 
-    for i in range(1,Q.shape[0]): #do not write the first quat, part of calibration
-        time_stamp = (i-1)*dt
+    for i in range(0,Q.shape[0]-1): #do not write the first quat, part of calibration
+        time_stamp = (i+1)*dt
         new_file.write("{}".format(round(time_stamp,2)))
 
         for sensor in range(6):

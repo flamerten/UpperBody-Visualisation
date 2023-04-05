@@ -72,7 +72,7 @@ if collect_Files:
     target_file = Ubuntu_dir + Target_FileName #check to see if file exists before collecting all the data
 
     if use_sEMG == False:
-        to_collect.drop(Semg_FileName)
+        to_collect.remove(Semg_FileName)
 
     while True:
         try:
