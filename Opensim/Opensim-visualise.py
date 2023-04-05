@@ -10,7 +10,7 @@ from math import pi
 import paramiko
 import os
 
-use_sEMG = False
+use_sEMG = True
 collect_Files = True #option to rerun on data that has been collected
 
 Ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
