@@ -11,7 +11,7 @@ import paramiko
 import os
 
 use_sEMG = True
-collect_Files = True #option to rerun on data that has been collected
+collect_Files = False #option to rerun on data that has been collected
 
 Ubuntu_dir = "/home/ubuntu/UpperBodyPOC/"
 

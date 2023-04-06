@@ -7,6 +7,10 @@ def filterIMU(imu_data, sto_filename):
     Q = np.tile([1., 0., 0., 0.], (rows, 6))
     Q[0],IMU_rate = get_t0_IMUrate(sto_filename)
 
+    print("Mahony Filter with IMU frequency rate of",IMU_rate,"selected")
+    print(Q[0])
+    print("..................................")
+
     mahony = Mahony(frequency = IMU_rate)
     
     for row in range(1,rows):
@@ -43,11 +47,16 @@ def quat_to_sto(Q,sto_filename,new_sto_filename):
     for i in range(7):
         new_file.write(lines[i]) #include the first time stamp
 
+    print("timestamp = 0")
+    print(lines[6])
+
     data_rate = float(lines[0].split("=")[-1])
     dt = 1/data_rate
 
-    for i in range(0,Q.shape[0]-1): #do not write the first quat, part of calibration
-        time_stamp = (i+1)*dt
+    print("dt used:",dt)
+
+    for i in range(1,Q.shape[0]): #do not write the first quat, part of calibration
+        time_stamp = (i)*dt
         new_file.write("{}".format(round(time_stamp,2)))
 
         for sensor in range(6):
